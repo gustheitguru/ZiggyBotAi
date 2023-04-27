@@ -57,6 +57,7 @@ export default {
       name: "ChatWindow",
       components: {
         Message,
+        IconZiggyBotAI,
       },
       data() {
         return {
