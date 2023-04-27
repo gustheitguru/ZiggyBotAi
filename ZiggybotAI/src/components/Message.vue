@@ -1,6 +1,16 @@
 <template>
   <div class="message">
-    {{ text }}
+    <div v-if="text">
+      {{ text }}
+    </div>
+    <div v-if="image">
+      <img
+        :src="image"
+        class="message-image"
+        @click="$emit('openImage', image)"
+        alt="Generated Image"
+      />
+    </div>
   </div>
 </template>
 
@@ -10,9 +20,25 @@ export default {
   props: {
     text: {
       type: String,
-      required: true,
+      default: "",
+    },
+    image: {
+      type: String,
+      default: "",
     },
   },
 };
 </script>
 
+<style scoped>
+.message {
+  /* your existing CSS for messages */
+}
+
+.message-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  cursor: pointer;
+}
+</style>

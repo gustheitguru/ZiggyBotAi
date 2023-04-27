@@ -31,7 +31,7 @@ export default {
       signOut(auth)
         .then(() => {
           // Sign-out successful.
-          console.log("Sign-out successful");
+          // console.log("Sign-out successful");
           router.push("/");
         })
         .catch((error) => {
@@ -41,13 +41,13 @@ export default {
     };
 
     onAuthStateChanged(auth, (user) => {
-        console.log("Auth state changed: ", user);
+        // console.log("Auth state changed: ", user);
         currentUser.value = user;
-        console.log("Current user email: ", currentUser.value.email);
+        // console.log("Current user email: ", currentUser.value.email);
         isUserLoaded.value = true;
     });
 
-    console.log("Returning user object: ", currentUser);
+    // console.log("Returning user object: ", currentUser);
     return {
       currentUser,
       handleSignOut,

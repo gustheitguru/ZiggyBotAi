@@ -1,3 +1,5 @@
+// src/componets/icons/IconZiggyBotAI.vue
+
 <template>
   <svg
     version="1.0" 

@@ -9,10 +9,10 @@ export function useAuth() {
 
   onAuthStateChanged(auth, (currentUser) => {
     if (currentUser) {
-        console.log('Current User Logged in: '+ currentUser.email);
+        // console.log('Current User Logged in: '+ currentUser.email);
         user.value = currentUser;
     } else {
-        console.log('No User logged in');
+        // console.log('No User logged in');
         user.value = null;
     }
   });

@@ -13,7 +13,7 @@
     signOut(getAuth())
         .then(() => {
         // Sign-out successful.
-        console.log("Sign-out successful")
+        // console.log("Sign-out successful")
         router.push("/");
         })
         .catch((error) => {

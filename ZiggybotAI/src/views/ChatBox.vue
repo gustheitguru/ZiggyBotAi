@@ -2,9 +2,18 @@
   <div class="chat-thread mt-5 d-flex flex-column" style="overflow-y: auto; position: fixed; bottom: 0; width: 90%;">
     <div class="message-container" style="flex-grow: 1; margin-top: auto;">
       <div v-for="(message, index) in messages" :key="index">
-        <Message v-if="index % 2 === 0" class="from-me msg right" :text="message.mr"/>
-        <Message v-else class="from-them msg left" :text="message.bot" :image="message.image" v-on:openImage="openImage"/>
-        <Message v-else class="from-them msg left" :text="message.bot" v-html="message.Ziggy"/>
+        <Message
+          v-if="index % 2 === 0"
+          class="from-me msg right"
+          :text="message.mr"
+        />
+        <Message
+          v-else
+          class="from-them msg left"
+          :text="message.bot"
+          :image="message.image"
+          @openImage="openImage"
+        />
       </div>
     </div>
     <div class="input-container">
@@ -29,7 +38,7 @@
               </div>
             </span>
           </div>
-          <input v-model="messageInput" type="text" class="form-control" placeholder="Enter your message" required>
+        <input v-model="messageInput" type="text" class="form-control" :class="inputBackgroundClass" placeholder="Enter your message" required>
           <div class="input-group-append">
             <button type="submit" class="btn btn-primary">Send</button>
           </div>
@@ -40,61 +49,66 @@
 </template>
 
 <script>
-import IconZiggyBotAI from "../components/icons/IconZiggyBotAI.vue";
 import Message from "../components/Message.vue";
+import IconZiggyBotAI from "../components/icons/IconZiggyBotAI.vue"
 import axios from "axios";
 
 export default {
-  name: "ChatWindow",
-  components: {
-    Message,
-  },
-  data() {
-    return {
-      messages: [],
-      messageInput: "",
-      imageCheckbox: false,
-    };
-  },
-  methods: {
-    sendMessage() {
-      var mr = {
-        mr: this.messageInput,
-      };
-      this.messages.push(mr);
+      name: "ChatWindow",
+      components: {
+        Message,
+      },
+      data() {
+        return {
+          messages: [],
+          messageInput: "",
+          imageCheckbox: false,
+        };
+      },
+      computed: {
+        inputBackgroundClass() {
+          return this.imageCheckbox ? "yellow-background" : "";
+        },
+      },
+      methods: {
+        sendMessage() {
+          var mr = {
+            mr: this.messageInput,
+          };
+          this.messages.push(mr);
 
-      if (this.imageCheckbox) {
-        axios
-          .post("http://localhost:3000/image", {
-            text: this.messageInput,
-          })
-          .then((imageResponse) => {
-            console.log(imageResponse.data.image);
-            const imageMessage = {
-              bot: '',
-              image: imageResponse.data.image,
-            };
-            // console.log({Image: imageResponse.data.image});
-            this.messages.push({Image: imageResponse.data.image});
-            console.log(this.messages)
-          });
-      } else {
-        axios
-          .post("http://localhost:3000/chat", {
-            text: this.messageInput,
-          })
-          .then((response) => {
-            console.log(response.data)
-            this.messages.push(response.data);
-          });
-      }
+          if (this.imageCheckbox) {
+            axios
+              .post("http://localhost:3000/image", {
+                text: this.messageInput,
+              })
+              .then((imageResponse) => {
+                const imageMessage = {
+                  bot: '',
+                  image: imageResponse.data.image,
+                };
+                this.messages.push(imageMessage);
+              });
+          } else {
+            axios
+              .post("http://localhost:3000/chat", {
+                text: this.messageInput,
+              })
+              .then((response) => {
+                console.log(response.data)
+                this.messages.push({ bot: response.data }); // Update this line
+                console.log(this.messages)
+              });
+          }
 
-      this.messageInput = "";
-    },
-    openImage(imageUrl) {
-      window.open(imageUrl, "_blank");
-    },
-  },
+          this.messageInput = "";
+          this.imageCheckbox = false; // Reset the imageCheckbox value after sending a message
+        },
+        openImage(imageUrl) {
+          window.open(imageUrl, "_blank");
+        },
+      },
+
 };
 </script>
 
@@ -179,5 +193,9 @@ export default {
   max-height: 100px;
   cursor: pointer;
   margin: 5px 0;
+}
+
+.yellow-background {
+  background-color: rgba(255, 255, 0, 0.1);
 }
 </style>
