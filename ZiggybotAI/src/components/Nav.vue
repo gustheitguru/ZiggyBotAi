@@ -1,19 +1,14 @@
 <template>
   <div v-if="isUserLoaded">
     <nav>
-      <RouterLink v-if="!currentUser.value" to="/">Landing</RouterLink> <a>| </a>
-      <RouterLink v-if="!currentUser.value" to="/chat">ZiggyBot</RouterLink> <a>| </a>
-      <RouterLink v-if="!currentUser.value" to="/settings">Settings</RouterLink> <a>| </a>
-      <a v-if="!currentUser.value" @click="handleSignOut">SignOut</a>
-      <span v-if="currentUser.value && currentUser.value.email">{{ currentUser.value.email }}</span>
+      <RouterLink to="/">Landing</RouterLink> <a>| </a>
+      <RouterLink to="/chat">ZiggyBot</RouterLink> <a>| </a>
+      <RouterLink to="/settings">Settings</RouterLink> <a>| </a>
+      <a @click="handleSignOut">SignOut</a>
+      <!-- <span>{{ currentUser.value.email }}</span> -->
     </nav>
   </div>
 </template>
-
-
-
-
-
 
 <script>
 import { ref } from "vue";
@@ -40,14 +35,12 @@ export default {
         });
     };
 
-    onAuthStateChanged(auth, (user) => {
-        // console.log("Auth state changed: ", user);
-        currentUser.value = user;
-        // console.log("Current user email: ", currentUser.value.email);
-        isUserLoaded.value = true;
-    });
+onAuthStateChanged(auth, (user) => {
+  currentUser.value = user;
+  isUserLoaded.value = !!user;
+});
 
-    // console.log("Returning user object: ", currentUser);
+    // console.log(isUserLoaded.value);
     return {
       currentUser,
       handleSignOut,
