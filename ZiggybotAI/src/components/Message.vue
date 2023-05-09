@@ -3,12 +3,15 @@
     <div v-if="text">
       {{ text }}
     </div>
-    <div v-if="image">
+    <div v-if="images.length > 0" class="message-image-wrapper">
       <img
+        v-for="(image, index) in images"
+        :key="index"
         :src="image"
         class="message-image"
-        @click="$emit('openImage', image)"
-        alt="Generated Image"
+        @click="$emit('openCarousel', images)"
+        :alt="'Generated Image ' + (index + 1)"
+        @error="onImageError"
       />
     </div>
   </div>
@@ -22,23 +25,37 @@ export default {
       type: String,
       default: "",
     },
-    image: {
-      type: String,
-      default: "",
+    images: {
+      type: Array,
+      default: () => [],
+    },
+  },
+  methods: {
+    onImageError(event) {
+      console.error('Image loading error:', event);
     },
   },
 };
 </script>
 
 <style scoped>
-.message {
-  /* your existing CSS for messages */
+.message-image {
+  max-width: 50%;
+  margin: 5px;
+  object-fit: cover;
+  border-radius: 5px;
 }
 
-.message-image {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  cursor: pointer;
+.image-container {
+  display: inline-flex;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.message-image-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
 }
 </style>

@@ -5,13 +5,13 @@ import router from './router'
 import 'bootstrap/dist/css/bootstrap.css';
 import { createPopper } from '@popperjs/core'; // Add this line
 import Dropdown from 'bootstrap/js/dist/dropdown'; // Add this line
-
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { faUserSecret,faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+// import axios from 'axios';
 
 import './assets/main.css'
 // Import the functions you need from the SDKs you need
@@ -40,6 +40,20 @@ const app = createApp(App)
 app.use(createPinia())
 app.component("font-awesome-icon", FontAwesomeIcon);
 app.use(router)
+
+// console.log(process.env.VUE_APP_API_URL);
+// axios.defaults.baseURL = process.env.VUE_APP_API_URL;
+// axios.defaults.withCredentials = true;
+
+// axios.interceptors.request.use(
+//   config => {
+//     if (config.url.startsWith('http://')) {
+//       config.url = config.url.replace('http://', 'https://');
+//     }
+//     return config;
+//   },
+//   error => Promise.reject(error)
+// );
 
 app.mount('#app')
 

@@ -1,19 +1,30 @@
 <template>
   <div class="chat-thread mt-5 d-flex flex-column" style="overflow-y: auto; position: fixed; bottom: 0; width: 90%;">
-    <div class="message-container" style="flex-grow: 1; margin-top: auto;">
-      <div v-for="(message, index) in messages" :key="index">
-        <Message
-          v-if="index % 2 === 0"
-          class="from-me msg right"
-          :text="message.mr"
-        />
-        <Message
-          v-else
-          class="from-them msg left"
-          :text="message.bot"
-          :image="message.image"
-          @openImage="openImage"
-        />
+    <div class="messages">
+      <div
+        v-for="(message, index) in messages"
+        :key="index"
+      >
+        <div
+          v-if="message.mr"
+          class="from-me"
+        >
+          <span>{{ message.mr }}</span>
+        </div>
+        <div
+          v-if="message.bot"
+          class="from-them"
+        >
+          <span>{{ message.bot }}</span>
+        </div>
+        <div
+          v-if="message.image"
+          class="from-them"
+          @click="openCarousel(index)"
+        >
+          <img :src="message.image[0]" class="message-image" />
+          <img v-if="message.image.length > 1" :src="message.image[1]" class="message-image" />
+        </div>
       </div>
     </div>
     <div class="input-container">
@@ -21,15 +32,27 @@
         <div class="input-group">
           <div class="input-group-prepend">
             <span class="input-group-icon">
-              <div class="dropdown dropup">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" data-bs-display="static" data-bs-popper="none" aria-expanded="false">
+              <div class="dropdown" @click="toggleDropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" aria-expanded="false">
                   <IconZiggyBotAI width="50px" height="50px" />
                 </button>
-                <ul class="dropdown-menu dropup-menu" aria-labelledby="dropdownMenuButton">
+                <ul class="dropdown-menu" :class="{ 'show': dropdownVisible }" aria-labelledby="dropdownMenuButton">
                   <li>
                     <label class="dropdown-item" for="imageCheckbox">
                       <input type="checkbox" id="imageCheckbox" v-model="imageCheckbox" />
                       { DALL·E } Image Generation
+                    </label>
+                  </li>
+                  <li>
+                    <label class="dropdown-item" for="chat4">
+                      <input type="checkbox" id="chat4" v-model="chat4" />
+                      { ChatGPT 4 } Premium 
+                    </label>
+                  </li>
+                  <li>
+                    <label class="dropdown-item" for="chat4">
+                      <input type="checkbox" id="chat4" v-model="chat4" />
+                      { Monster Image's API } Premium 
                     </label>
                   </li>
                   <!-- <li><a class="dropdown-item" href="#">Settings</a></li> -->
@@ -38,7 +61,7 @@
               </div>
             </span>
           </div>
-        <input v-model="messageInput" type="text" class="form-control" :class="inputBackgroundClass" placeholder="Enter your message" required>
+          <input v-model="messageInput" type="text" class="form-control" :class="inputBackgroundClass" placeholder="Enter your message" required>
           <div class="input-group-append">
             <button type="submit" class="btn btn-primary">Send</button>
           </div>
@@ -46,72 +69,58 @@
       </form>
     </div>
   </div>
+  <ImageCarousel ref="carousel" :images="carouselImages" />
 </template>
 
 <script>
 import Message from "../components/Message.vue";
-import IconZiggyBotAI from "../components/icons/IconZiggyBotAI.vue"
+import IconZiggyBotAI from "../components/icons/IconZiggyBotAI.vue";
 import axios from "axios";
+import ImageCarousel from "../components/ImageCarousel.vue";
+import Cookies from "js-cookie";
 
 export default {
-      name: "ChatWindow",
-      components: {
-        Message,
-        IconZiggyBotAI,
-      },
-      data() {
-        return {
-          messages: [],
-          messageInput: "",
-          imageCheckbox: false,
-        };
-      },
-      computed: {
-        inputBackgroundClass() {
-          return this.imageCheckbox ? "yellow-background" : "";
+  name: "ChatWindow",
+  components: {
+    Message,
+    IconZiggyBotAI,
+    ImageCarousel,
+  },
+  data() {
+    return {
+      messages: [
+        {
+          bot: "Hello, how may I assist you?",
         },
-      },
-      methods: {
-        sendMessage() {
-          var mr = {
-            mr: this.messageInput,
-          };
-          this.messages.push(mr);
-
-          if (this.imageCheckbox) {
-            axios
-              .post("http://localhost:3000/image", {
-                text: this.messageInput,
-              })
-              .then((imageResponse) => {
-                const imageMessage = {
-                  bot: '',
-                  image: imageResponse.data.image,
-                };
-                this.messages.push(imageMessage);
-              });
-          } else {
-            axios
-              .post("http://localhost:3000/chat", {
-                text: this.messageInput,
-              })
-              .then((response) => {
-                console.log(response.data)
-                this.messages.push({ bot: response.data }); // Update this line
-                console.log(this.messages)
-              });
-          }
-
-          this.messageInput = "";
-          this.imageCheckbox = false; // Reset the imageCheckbox value after sending a message
-        },
-        openImage(imageUrl) {
-          window.open(imageUrl, "_blank");
-        },
-      },
-
+      ],
+      messageInput: "",
+      imageCheckbox: false,
+      chat4: false,
+      chat4Checkbox: false,
+      carouselImages: [],
+      dropdownVisible: false, // Add this line
+    };
+  },
+  computed: {
+    inputBackgroundClass() {
+      return this.imageCheckbox ? "yellow-background" : "";
+    },
+  },
+  methods: {
+    sendMessage() {
+      // Your existing sendMessage code
+    },
+    openCarousel(index) {
+      // Your existing openCarousel code
+    },
+    toggleDropdown() { // Add this method
+      this.dropdownVisible = !this.dropdownVisible;
+    },
+  },
 };
 </script>
+
+
 
 
 <style scoped>
@@ -128,10 +137,27 @@ export default {
 .from-them {
   align-self: flex-start;
   text-align: left;
+  border-radius: 90px 90px 90px 10px/ 150px;
+  background-color: #CCC;
+  float: left;
+  clear: both;
+  max-width: 55%;
+  padding-left: 30px;
+  padding-right: 10px;
+  overflow-wrap: break-word;
+  padding-top: 10px;
+  padding-bottom: 5px;
 }
+
 .from-me {
-  align-self: self-end;
+  align-self: flex-end;
   text-align: right;
+  border-radius: 90px 90px 90px 10px/ 120px;
+  background-color: #1982FC;
+  float: right;
+  clear: both;
+  padding: 10px;
+  max-width: 70%;
 }
 
 .msg.right {
@@ -158,12 +184,12 @@ export default {
 
 .message-container {
   width: 100%;
-  max-height: calc(100vh - 120px); /* adjust as needed */
+  max-height: calc(100vh - 180px); /* Adjust as needed */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  margin-bottom: 10px; /* adjust as needed */
+  margin-bottom: 10px; /* Adjust as needed */
   flex-grow: 1;
 }
 
@@ -175,19 +201,34 @@ export default {
 
 .dropdown {
   position: relative;
-  z-index: 1000;
 }
+
+.dropup {
+  position: absolute;
+  z-index: 2000;
+  display: none; /* Add this line */
+}
+
+.dropup.visible { /* Add this class */
+  display: block;
+}
+
+.dropdown-menu {
+  top: auto; /* Add this line */
+  bottom: 100%; /* Add this line */
+}
+
 
 .input-group-prepend {
     position: relative;
   }
 
-/* .dropup-menu {
-  position: absolute;
-  bottom: calc(100% + 4px);
-  left: 0;
-  transform: translateY(0);
-} */
+.chat-thread {
+  z-index: 0;
+  position: fixed;
+  bottom: 60px; /* Adjust the value to move the message box above the button */
+  width: 90%;
+}
 
 .thumbnail {
   max-width: 100px;

@@ -37,12 +37,14 @@ const signInWithGoogle = () => {
         },
         body: JSON.stringify({ user: result.user }),
       })
-      .then((response) => {
+      .then(async (response) => {
         console.log(response)
         if (response.ok) {
-        const jwt = response.headers.get('Authorization');
-        Cookies.set('jwt', jwt);
+        const jwt = (await response.json()).token;
+        localStorage.setItem('jwt', jwt);
         console.log('JWT:', jwt);
+
+ 
         } else {
           console.log('generateJWT failed:', response);
         }
