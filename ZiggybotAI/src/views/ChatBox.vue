@@ -32,11 +32,11 @@
         <div class="input-group">
           <div class="input-group-prepend">
             <span class="input-group-icon">
-              <div class="dropdown" @click="toggleDropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" aria-expanded="false">
+              <div class="dropdown dropup">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" data-bs-display="static" data-bs-boundary="viewport" aria-expanded="false">
                   <IconZiggyBotAI width="50px" height="50px" />
                 </button>
-                <ul class="dropdown-menu" :class="{ 'show': dropdownVisible }" aria-labelledby="dropdownMenuButton">
+                <ul class="dropdown-menu dropup-menu" aria-labelledby="dropdownMenuButton">
                   <li>
                     <label class="dropdown-item" for="imageCheckbox">
                       <input type="checkbox" id="imageCheckbox" v-model="imageCheckbox" />
@@ -72,12 +72,15 @@
   <ImageCarousel ref="carousel" :images="carouselImages" />
 </template>
 
+
+
 <script>
 import Message from "../components/Message.vue";
 import IconZiggyBotAI from "../components/icons/IconZiggyBotAI.vue";
 import axios from "axios";
 import ImageCarousel from "../components/ImageCarousel.vue";
 import Cookies from "js-cookie";
+
 
 export default {
   name: "ChatWindow",
@@ -96,9 +99,8 @@ export default {
       messageInput: "",
       imageCheckbox: false,
       chat4: false,
-      chat4Checkbox: false,
+      chat4Checkbox: false, // Add this line
       carouselImages: [],
-      dropdownVisible: false, // Add this line
     };
   },
   computed: {
@@ -106,17 +108,91 @@ export default {
       return this.imageCheckbox ? "yellow-background" : "";
     },
   },
-  methods: {
-    sendMessage() {
-      // Your existing sendMessage code
-    },
-    openCarousel(index) {
-      // Your existing openCarousel code
-    },
-    toggleDropdown() { // Add this method
-      this.dropdownVisible = !this.dropdownVisible;
-    },
+
+ methods: {
+  sendMessage() {
+    const jwt = localStorage.getItem('jwt');
+    console.log('JWT:', jwt);
+
+    var mr = {
+      mr: this.messageInput,
+    };
+    this.messages.push(mr);
+
+    if (this.imageCheckbox) {
+      axios
+        .post(
+          "http://localhost:3000/image",
+          {
+            text: this.messageInput,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+            },
+          }
+        )
+        .then((imageResponse) => {
+          console.log("Image response:", imageResponse);
+
+          const imageUrls = imageResponse.data.image.map(
+            (image) => image.url
+          );
+          const imageMessage = {
+            bot: "",
+            image: imageUrls,
+          };
+          console.log("Image message:", imageMessage);
+          this.messages.push(imageMessage);
+        });
+    } else if (this.chat4Checkbox) {
+      axios
+        .post(
+          "http://localhost:3000/chat4",
+          {
+            text: this.messageInput,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          this.messages.push({ bot: response.data });
+          console.log(this.messages);
+        });
+    } else {
+      axios
+        .post(
+          "http://localhost:3000/chat",
+          {
+            text: this.messageInput,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          this.messages.push({ bot: response.data });
+          console.log(this.messages);
+        });
+    }
+
+    this.messageInput = "";
+    this.imageCheckbox = false;
+    this.chat4Checkbox = false; // Add this line
   },
+
+  openCarousel(index) {
+    this.carouselImages = this.messages[index].image;
+    this.$refs.carousel.openCarousel();
+  },
+},
 };
 </script>
 
@@ -184,12 +260,12 @@ export default {
 
 .message-container {
   width: 100%;
-  max-height: calc(100vh - 180px); /* Adjust as needed */
+  max-height: calc(100vh - 120px); /* adjust as needed */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  margin-bottom: 10px; /* Adjust as needed */
+  margin-bottom: 10px; /* adjust as needed */
   flex-grow: 1;
 }
 
@@ -204,30 +280,14 @@ export default {
 }
 
 .dropup {
-  position: absolute;
   z-index: 2000;
-  display: none; /* Add this line */
 }
-
-.dropup.visible { /* Add this class */
-  display: block;
-}
-
-.dropdown-menu {
-  top: auto; /* Add this line */
-  bottom: 100%; /* Add this line */
-}
-
-
 .input-group-prepend {
     position: relative;
   }
 
 .chat-thread {
   z-index: 0;
-  position: fixed;
-  bottom: 60px; /* Adjust the value to move the message box above the button */
-  width: 90%;
 }
 
 .thumbnail {
