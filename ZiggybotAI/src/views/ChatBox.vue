@@ -112,7 +112,7 @@ export default {
  methods: {
   sendMessage() {
     const jwt = localStorage.getItem('jwt');
-    console.log('JWT:', jwt);
+    //console.log('JWT:', jwt);
 
     var mr = {
       mr: this.messageInput,
@@ -133,7 +133,7 @@ export default {
           }
         )
         .then((imageResponse) => {
-          console.log("Image response:", imageResponse);
+          //console.log("Image response:", imageResponse);
 
           const imageUrls = imageResponse.data.image.map(
             (image) => image.url
@@ -142,7 +142,7 @@ export default {
             bot: "",
             image: imageUrls,
           };
-          console.log("Image message:", imageMessage);
+          //console.log("Image message:", imageMessage);
           this.messages.push(imageMessage);
         });
     } else if (this.chat4Checkbox) {
@@ -159,9 +159,9 @@ export default {
           }
         )
         .then((response) => {
-          console.log(response.data);
+          //console.log(response.data);
           this.messages.push({ bot: response.data });
-          console.log(this.messages);
+          //console.log(this.messages);
         });
     } else {
       axios
@@ -177,9 +177,9 @@ export default {
           }
         )
         .then((response) => {
-          console.log(response.data);
+          //console.log(response.data);
           this.messages.push({ bot: response.data });
-          console.log(this.messages);
+          //console.log(this.messages);
         });
     }
 
